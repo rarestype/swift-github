@@ -1,0 +1,2 @@
+@frozen public enum GraphQL {
+}
