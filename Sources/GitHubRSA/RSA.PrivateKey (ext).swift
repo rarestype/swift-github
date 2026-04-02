@@ -1,3 +1,4 @@
+#if canImport(Cryptography)
 public import GitHubAPI
 public import Cryptography
 import JSON
@@ -10,3 +11,4 @@ extension RSA.PrivateKey {
         }
     }
 }
+#endif
