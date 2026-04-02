@@ -7,9 +7,9 @@ var Cryptography: String { "Cryptography" }
 var enabledTraits: Set<String>
 
 #if os(Linux)
-    enabledTraits = [Cryptography]
+enabledTraits = [Cryptography]
 #else
-    enabledTraits = []
+enabledTraits = []
 #endif
 
 let package: Package = .init(
