@@ -16,6 +16,10 @@ The swift-github library requires Swift 6.2 or later.
 <!-- DO NOT EDIT BELOW! AUTOSYNC CONTENT [STATUS TABLE] -->
 | Platform | Status |
 | -------- | ------|
+| 🍏 Darwin (iOS) | [![Status](https://raw.githubusercontent.com/rarestype/swift-github/refs/badges/ci/Tests/iOS/status.svg)](https://github.com/rarestype/swift-github/actions/workflows/Tests.yml) |
+| 🍏 Darwin (tvOS) | [![Status](https://raw.githubusercontent.com/rarestype/swift-github/refs/badges/ci/Tests/tvOS/status.svg)](https://github.com/rarestype/swift-github/actions/workflows/Tests.yml) |
+| 🍏 Darwin (visionOS) | [![Status](https://raw.githubusercontent.com/rarestype/swift-github/refs/badges/ci/Tests/visionOS/status.svg)](https://github.com/rarestype/swift-github/actions/workflows/Tests.yml) |
+| 🍏 Darwin (watchOS) | [![Status](https://raw.githubusercontent.com/rarestype/swift-github/refs/badges/ci/Tests/watchOS/status.svg)](https://github.com/rarestype/swift-github/actions/workflows/Tests.yml) |
 <!-- DO NOT EDIT ABOVE! AUTOSYNC CONTENT [STATUS TABLE] -->
 
 [Check deployment minimums](https://swiftinit.org/docs/swift-github#ss:platform-requirements)
