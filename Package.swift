@@ -4,14 +4,6 @@ import CompilerPluginSupport
 
 var Cryptography: String { "Cryptography" }
 
-var enabledTraits: Set<String>
-
-#if os(Linux)
-enabledTraits = [Cryptography]
-#else
-enabledTraits = []
-#endif
-
 let package: Package = .init(
     name: "swift-github",
     platforms: [.macOS(.v15), .iOS(.v18), .tvOS(.v18), .watchOS(.v11), .visionOS(.v2)],
@@ -23,7 +15,6 @@ let package: Package = .init(
     ],
     traits: [
         .trait(name: Cryptography),
-        .default(enabledTraits: enabledTraits),
     ],
     dependencies: [
         .package(url: "https://github.com/ordo-one/dollup", from: "1.0.1"),
