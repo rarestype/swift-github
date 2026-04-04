@@ -52,7 +52,7 @@ let package: Package = .init(
                 .product(
                     name: "Cryptography",
                     package: "swift-cryptography",
-                    condition: .when(traits: [Cryptography])
+                    condition: .when(platforms: [.linux], traits: [Cryptography])
                 ),
                 .product(name: "JWT", package: "swift-jwt"),
             ],
