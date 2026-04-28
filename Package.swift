@@ -22,8 +22,8 @@ let package: Package = .init(
         .package(url: "https://github.com/rarestype/h", from: "1.0.1"),
         .package(url: "https://github.com/rarestype/servit", from: "1.1.0"),
         .package(url: "https://github.com/rarestype/swift-cryptography", from: "0.2.0"),
-        .package(url: "https://github.com/rarestype/swift-json", from: "2.3.2"),
-        .package(url: "https://github.com/rarestype/swift-jwt", from: "0.1.0"),
+        .package(url: "https://github.com/rarestype/swift-json", from: "3.3.0"),
+        .package(url: "https://github.com/rarestype/swift-jwt", from: "0.2.0"),
         .package(url: "https://github.com/rarestype/u", from: "1.1.0"),
     ],
     targets: [
