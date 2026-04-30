@@ -50,6 +50,7 @@ extension GitHub.Client.Connection {
             )
 
             let response: HTTP.Client2.Facet = try await self.http2.fetch(request)
+            status = response.status
 
             //  TODO: support If-None-Match
             switch response.status {
@@ -74,7 +75,6 @@ extension GitHub.Client.Connection {
                 break
             }
 
-            status = response.status
             break following
         }
 
