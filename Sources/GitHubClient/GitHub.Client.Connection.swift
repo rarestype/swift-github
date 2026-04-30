@@ -1,7 +1,7 @@
 public import GitHubAPI
 public import HTTPClient
 public import JSON
-import NIOCore
+public import NIOCore
 public import NIOHPACK
 public import UnixTime
 
@@ -27,23 +27,27 @@ extension GitHub.Client.Connection {
         from endpoint: String,
         with authorization: GitHub.ClientAuthorization,
         method: String,
+        body: ByteBuffer?
     ) async throws -> JSON {
         var endpoint: String = endpoint
         var status: UInt? = nil
 
         following:
         for _: Int in 0 ... 1 {
-            let request: HPACKHeaders = [
-                ":method": method,
-                ":scheme": "https",
-                ":authority": self.http2.remote,
-                ":path": endpoint,
+            let request: HTTP.Client2.Request = .init(
+                headers: [
+                    ":method": method,
+                    ":scheme": "https",
+                    ":authority": self.http2.remote,
+                    ":path": endpoint,
 
-                "authorization": authorization.header,
-                //  GitHub will reject the API request if the user-agent is not set.
-                "user-agent": self.agent,
-                "accept": "application/vnd.github+json"
-            ]
+                    "authorization": authorization.header,
+                    //  GitHub will reject the API request if the user-agent is not set.
+                    "user-agent": self.agent,
+                    "accept": "application/vnd.github+json"
+                ],
+                body: body
+            )
 
             let response: HTTP.Client2.Facet = try await self.http2.fetch(request)
 
@@ -61,7 +65,7 @@ extension GitHub.Client.Connection {
             case 403?:
                 if  let second: String = response.headers?["x-ratelimit-reset"].first,
                     let second: Int64 = .init(second) {
-                    throw GitHub.Client<GitHub.OAuth>.RateLimitError.init(
+                    throw GitHub.Client<Application>.RateLimitError.init(
                         until: .second(second)
                     )
                 }
@@ -87,7 +91,8 @@ extension GitHub.Client.Connection {
         let json: JSON = try await self.fetch(
             from: endpoint,
             with: authorization,
-            method: "GET"
+            method: "GET",
+            body: nil
         )
         return try json.decode()
     }
@@ -170,7 +175,8 @@ extension GitHub.Client<()>.Connection {
         let json: JSON = try await self.fetch(
             from: "/graphql",
             with: authorization,
-            method: "POST"
+            method: "POST",
+            body: self.http2.buffer(string: query),
         )
         return try json.decode()
     }
