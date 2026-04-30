@@ -1,7 +1,7 @@
 public import GitHubAPI
 public import HTTPClient
 public import JSON
-import NIOCore
+public import NIOCore
 public import NIOHPACK
 public import UnixTime
 
@@ -22,55 +22,81 @@ extension GitHub.Client {
         }
     }
 }
-extension GitHub.Client<Void>.Connection {
-    /// Run a GraphQL API request.
-    ///
-    /// The request will be charged to the user associated with the stored token. It is not
-    /// possible to run a GraphQL API request without a token.
-    @inlinable public func post<T>(
-        query: String,
-        expecting _: T.Type = T.self,
-        with authorization: GitHub.ClientAuthorization
-    ) async throws -> GraphQL.Response<T>
-        where T: JSONDecodable {
-        let request: HTTP.Client2.Request = .init(
-            headers: [
-                ":method": "POST",
-                ":scheme": "https",
-                ":authority": self.http2.remote,
-                ":path": "/graphql",
+extension GitHub.Client.Connection {
+    @inlinable func fetch(
+        from endpoint: String,
+        with authorization: GitHub.ClientAuthorization,
+        method: String,
+        body: ByteBuffer?
+    ) async throws -> JSON {
+        var endpoint: String = endpoint
+        var status: UInt? = nil
 
-                "authorization": authorization.header,
+        following:
+        for _: Int in 0 ... 1 {
+            let request: HTTP.Client2.Request = .init(
+                headers: [
+                    ":method": method,
+                    ":scheme": "https",
+                    ":authority": self.http2.remote,
+                    ":path": endpoint,
 
-                //  GitHub will reject the API request if the user-agent is not set.
-                "user-agent": self.agent,
-                "accept": "application/vnd.github+json"
-            ],
-            body: self.http2.buffer(string: query)
-        )
+                    "authorization": authorization.header,
+                    //  GitHub will reject the API request if the user-agent is not set.
+                    "user-agent": self.agent,
+                    "accept": "application/vnd.github+json"
+                ],
+                body: body
+            )
 
-        /// GraphQL should never return redirects.
-        let response: HTTP.Client2.Facet = try await self.http2.fetch(request)
+            let response: HTTP.Client2.Facet = try await self.http2.fetch(request)
+            status = response.status
 
-        switch response.status {
-        case 200?:
-            let json: JSON = .init(utf8: response.body[...])
-            return try json.decode()
+            //  TODO: support If-None-Match
+            switch response.status {
+            case 200?:
+                return JSON.init(utf8: response.body[...])
 
-        case 403?:
-            if  let second: String = response.headers?["x-ratelimit-reset"].first,
-                let second: Int64 = .init(second) {
-                throw GitHub.Client<Application>.RateLimitError.init(until: .second(second))
-            } else {
-                fallthrough
+            case 301?:
+                if let location: String = response.headers?["location"].first {
+                    endpoint = .init(location.trimmingPrefix("https://\(self.http2.remote)"))
+                    continue following
+                }
+
+            case 403?:
+                if  let second: String = response.headers?["x-ratelimit-reset"].first,
+                    let second: Int64 = .init(second) {
+                    throw GitHub.Client<Application>.RateLimitError.init(
+                        until: .second(second)
+                    )
+                }
+
+            case _:
+                break
             }
 
-        case _:
-            throw HTTP.StatusError.init(code: response.status)
+            break following
         }
+
+        throw HTTP.StatusError.init(code: status)
     }
 }
 extension GitHub.Client.Connection {
+    /// Run a REST API request with the given credentials, following up to one redirect.
+    @inlinable public func get<Response>(
+        expecting _: Response.Type = Response.self,
+        from endpoint: String,
+        with authorization: GitHub.ClientAuthorization
+    ) async throws -> Response where Response: JSONDecodable {
+        let json: JSON = try await self.fetch(
+            from: endpoint,
+            with: authorization,
+            method: "GET",
+            body: nil
+        )
+        return try json.decode()
+    }
+
     @discardableResult
     @inlinable public func post(
         to endpoint: String,
@@ -135,62 +161,24 @@ extension GitHub.Client.Connection {
             return (status, try json.decode())
         }
     }
-
-    /// Run a REST API request with the given credentials, following up to one redirect.
-    @inlinable public func get<Response>(
-        expecting _: Response.Type = Response.self,
-        from endpoint: String,
+}
+extension GitHub.Client<()>.Connection {
+    /// Run a GraphQL API request.
+    ///
+    /// The request will be charged to the user associated with the stored token. It is not
+    /// possible to run a GraphQL API request without a token.
+    @inlinable public func post<T>(
+        query: String,
+        expecting _: T.Type = T.self,
         with authorization: GitHub.ClientAuthorization
-    ) async throws -> Response
-        where Response: JSONDecodable {
-        var endpoint: String = endpoint
-        var status: UInt? = nil
-
-        following:
-        for _: Int in 0 ... 1 {
-            let request: HPACKHeaders = [
-                ":method": "GET",
-                ":scheme": "https",
-                ":authority": self.http2.remote,
-                ":path": endpoint,
-
-                "authorization": authorization.header,
-                //  GitHub will reject the API request if the user-agent is not set.
-                "user-agent": self.agent,
-                "accept": "application/vnd.github+json"
-            ]
-
-            let response: HTTP.Client2.Facet = try await self.http2.fetch(request)
-
-            //  TODO: support If-None-Match
-            switch response.status {
-            case 200?:
-                let json: JSON = .init(utf8: response.body[...])
-                return try json.decode()
-
-            case 301?:
-                if let location: String = response.headers?["location"].first {
-                    endpoint = .init(location.trimmingPrefix("https://\(self.http2.remote)"))
-                    continue following
-                }
-
-            case 403?:
-                if  let second: String = response.headers?["x-ratelimit-reset"].first,
-                    let second: Int64 = .init(second) {
-                    throw GitHub.Client<GitHub.OAuth>.RateLimitError.init(
-                        until: .second(second)
-                    )
-                }
-
-            case _:
-                break
-            }
-
-            status = response.status
-            break following
-        }
-
-        throw HTTP.StatusError.init(code: status)
+    ) async throws -> GraphQL.Response<T> where T: JSONDecodable {
+        let json: JSON = try await self.fetch(
+            from: "/graphql",
+            with: authorization,
+            method: "POST",
+            body: self.http2.buffer(string: query),
+        )
+        return try json.decode()
     }
 }
 extension GitHub.Client<GitHub.OAuth>.Connection {
