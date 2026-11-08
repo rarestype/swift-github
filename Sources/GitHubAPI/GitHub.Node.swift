@@ -18,5 +18,4 @@ extension GitHub.Node: LosslessStringConvertible {
 extension GitHub.Node: ExpressibleByStringLiteral {
     @inlinable public init(stringLiteral: String) { self.init(rawValue: stringLiteral) }
 }
-extension GitHub.Node: JSONEncodable, JSONDecodable {
-}
+extension GitHub.Node: JSONEncodable, JSONDecodable {}

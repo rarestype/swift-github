@@ -23,5 +23,4 @@ extension GitHub.RefType: LosslessStringConvertible {
         }
     }
 }
-extension GitHub.RefType: JSONStringDecodable, JSONStringEncodable {
-}
+extension GitHub.RefType: JSONStringDecodable, JSONStringEncodable {}

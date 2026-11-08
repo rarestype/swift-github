@@ -15,5 +15,4 @@ extension GitHub.InstallationAccessToken: ExpressibleByStringLiteral {
 extension GitHub.InstallationAccessToken: CustomStringConvertible {
     @inlinable public var description: String { self.rawValue }
 }
-extension GitHub.InstallationAccessToken: JSONEncodable, JSONDecodable {
-}
+extension GitHub.InstallationAccessToken: JSONEncodable, JSONDecodable {}

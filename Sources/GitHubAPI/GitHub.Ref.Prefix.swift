@@ -26,5 +26,4 @@ extension GitHub.Ref.Prefix: LosslessStringConvertible {
         }
     }
 }
-extension GitHub.Ref.Prefix: JSONStringEncodable, JSONStringDecodable {
-}
+extension GitHub.Ref.Prefix: JSONStringEncodable, JSONStringDecodable {}

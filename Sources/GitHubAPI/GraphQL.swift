@@ -1,2 +1,1 @@
-@frozen public enum GraphQL {
-}
+@frozen public enum GraphQL {}

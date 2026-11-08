@@ -33,5 +33,4 @@ extension GitHub.RepoVisibility: LosslessStringConvertible {
         }
     }
 }
-extension GitHub.RepoVisibility: JSONStringDecodable {
-}
+extension GitHub.RepoVisibility: JSONStringDecodable {}

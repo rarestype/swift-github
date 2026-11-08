@@ -26,5 +26,4 @@ extension GitHub.OrganizationMembership.State: LosslessStringConvertible {
         }
     }
 }
-extension GitHub.OrganizationMembership.State: JSONStringEncodable, JSONStringDecodable {
-}
+extension GitHub.OrganizationMembership.State: JSONStringEncodable, JSONStringDecodable {}

@@ -31,5 +31,4 @@ extension GitHub.OrganizationMembership.Role: LosslessStringConvertible {
         }
     }
 }
-extension GitHub.OrganizationMembership.Role: JSONStringEncodable, JSONStringDecodable {
-}
+extension GitHub.OrganizationMembership.Role: JSONStringEncodable, JSONStringDecodable {}
