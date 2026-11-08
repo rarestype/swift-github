@@ -36,7 +36,8 @@ extension GitHub.User {
 extension GitHub.User: JSONObjectDecodable, JSONDecodable {
     public init(json: JSON.ObjectDecoder<CodingKey>) throws {
         self.init(
-            id: try json[.id].decode(), profile: .init(
+            id: try json[.id].decode(),
+            profile: .init(
                 login: try json[.login].decode(),
                 icon: try json[.avatar_url].decode(),
                 node: try json[.node_id].decode(),

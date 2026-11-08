@@ -23,5 +23,4 @@ extension GitHub.WebhookInstallation.Action: LosslessStringConvertible {
         }
     }
 }
-extension GitHub.WebhookInstallation.Action: JSONStringDecodable, JSONStringEncodable {
-}
+extension GitHub.WebhookInstallation.Action: JSONStringDecodable, JSONStringEncodable {}
